@@ -1,28 +1,29 @@
 version: '3'
 services:
+  # Geth service
   geth:
-    build:
-      context: .
-      dockerfile: DockerfileGeth
-    restart: "no"
+    image: ethereum/client-go:latest
+    entrypoint: geth --goerli --syncmode "full" --gcmode archive --port 30303 --cache 1024 --rpc --rpcapi "net,web3,eth,shh,debug" --rpccorsdomain "*" --rpcaddr 0.0.0.0 --rpcvhosts "*" --ws --wsorigins "*" --wsaddr 0.0.0.0
+    restart: "always"
     expose:
       - "8545"
       - "8546"
     depends_on:
       - postgres
+
+  # Postgres service
   postgres:
-    build:
-      context: .
-      dockerfile: DockerfilePostgres
-    restart: "no"
+    image: postgres:10.9-alpine
+    restart: "always"
     expose:
       - "5432"
+
+  # Explorer service
   explorer:
     build:
       context: .
-      dockerfile: DockerfileExplorer
-    restart: "no"
-    tty: true
+      dockerfile: DockerfilePostgres
+    restart: "always"
     environment:
       - DATABASE_URL=ecto://postgres:@postgres/explorer?ssl=false
       - ETHEREUM_JSONRPC_HTTP_URL=http://geth:8545
