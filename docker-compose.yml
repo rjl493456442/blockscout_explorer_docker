@@ -22,12 +22,13 @@ services:
   explorer:
     build:
       context: .
-      dockerfile: DockerfilePostgres
+      dockerfile: DockerfileExplorer
     restart: "always"
     environment:
       - DATABASE_URL=ecto://postgres:@postgres/explorer?ssl=false
       - ETHEREUM_JSONRPC_HTTP_URL=http://geth:8545
       - ETHEREUM_JSONRPC_WS_URL=ws://geth:8546 
+      - WS_BLOCK_PERIOD=120000
     ports:
       - "4000:4000"
     depends_on:
